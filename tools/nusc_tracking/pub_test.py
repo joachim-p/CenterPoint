@@ -37,15 +37,17 @@ def parse_args():
 
 def save_first_frame():
     args = parse_args()
-    nusc = NuScenes(version=args.version, dataroot=args.root, verbose=True)
     if args.version == 'v1.0-trainval':
         scenes = splits.val
     elif args.version == 'v1.0-test':
         scenes = splits.test 
+    elif args.version == 'v1.0-mini':
+        scenes = splits.mini_val 
     else:
-        raise ValueError("unknown")
+        raise ValueError("unknown nuscenes split")
 
     frames = []
+    nusc = NuScenes(version=args.version, dataroot=args.root, verbose=True)
     for sample in nusc.sample:
         scene_name = nusc.get("scene", sample['scene_token'])['name'] 
         if scene_name not in scenes:
@@ -154,13 +156,23 @@ def main():
 
 def eval_tracking():
     args = parse_args()
+    if args.version == 'v1.0-trainval':
+        eval_set = "val"
+    elif args.version == 'v1.0-test':
+        eval_set = "test" 
+    elif args.version == 'v1.0-mini':
+        eval_set = "mini_val" 
+    else:
+        raise ValueError("unknown nuscenes split")
+
     eval(os.path.join(args.work_dir, 'tracking_result.json'),
-        "val",
+        eval_set,
         args.work_dir,
-        args.root
+        args.root,
+        args.version
     )
 
-def eval(res_path, eval_set="val", output_dir=None, root_path=None):
+def eval(res_path, eval_set="val", output_dir=None, root_path=None, nusc_version="v1.0-trainval"):
     from nuscenes.eval.tracking.evaluate import TrackingEval 
     from nuscenes.eval.common.config import config_factory as track_configs
 
@@ -172,7 +184,7 @@ def eval(res_path, eval_set="val", output_dir=None, root_path=None):
         eval_set=eval_set,
         output_dir=output_dir,
         verbose=True,
-        nusc_version="v1.0-trainval",
+        nusc_version=nusc_version,
         nusc_dataroot=root_path,
     )
     metrics_summary = nusc_eval.main()

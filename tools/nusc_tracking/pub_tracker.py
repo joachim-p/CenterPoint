@@ -49,6 +49,7 @@ class PubTracker(object):
   def step_centertrack(self, results, time_lag):
     if len(results) == 0:
       self.tracks = []
+      print("skipping frame without detections")
       return []
     else:
       temp = []
