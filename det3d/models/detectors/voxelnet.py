@@ -36,9 +36,9 @@ class VoxelNet(SingleStageDetector):
         else:
             data = dict(
                 features=data['voxels'],
-                num_voxels=data["num_points"],
+                num_voxels=data["num_voxels"],
                 coors=data["coordinates"],
-                batch_size=len(data['points']),
+                batch_size=1,
                 input_shape=data["shape"][0],
             )
             input_features = self.reader(data["features"], data['num_voxels'])
