@@ -42,6 +42,8 @@ def save_first_frame():
         scenes = splits.val
     elif args.version == 'v1.0-test':
         scenes = splits.test 
+    elif args.version == "v1.0-mini":
+        scenes = splits.mini_val
     else:
         raise ValueError("unknown")
 
@@ -155,12 +157,13 @@ def main():
 def eval_tracking():
     args = parse_args()
     eval(os.path.join(args.work_dir, 'tracking_result.json'),
-        "val",
+        "mini_val",
         args.work_dir,
+        args.version,
         args.root
     )
 
-def eval(res_path, eval_set="val", output_dir=None, root_path=None):
+def eval(res_path, eval_set="val", output_dir=None, version="v1.0-trainval", root_path=None):
     from nuscenes.eval.tracking.evaluate import TrackingEval 
     from nuscenes.eval.common.config import config_factory as track_configs
 
@@ -172,7 +175,7 @@ def eval(res_path, eval_set="val", output_dir=None, root_path=None):
         eval_set=eval_set,
         output_dir=output_dir,
         verbose=True,
-        nusc_version="v1.0-trainval",
+        nusc_version=version,
         nusc_dataroot=root_path,
     )
     metrics_summary = nusc_eval.main()
